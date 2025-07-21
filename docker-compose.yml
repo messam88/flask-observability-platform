@@ -1,35 +1,62 @@
 version: '3.8'
 
 services:
+  user_service:
+    build: ./user_service
+    container_name: user_service
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres/users_db
+    labels:
+      job: user_service
+    logging:
+      driver: "json-file"
+    volumes:
+      - ./logs/user_service:/logs/user_service
+
   service_a:
     build: ./service_a
     container_name: service_a
     ports:
-      - "5000:5000"
+      - "5001:5000"
     labels:
       job: service_a
     logging:
       driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
     volumes:
-      - ./logs/service_a:/logs
+      - ./logs/service_a:/logs/service_a
 
   service_b:
     build: ./service_b
     container_name: service_b
     ports:
-      - "5001:5000"
+      - "5002:5000"
     labels:
       job: service_b
     logging:
       driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
     volumes:
-      - ./logs/service_b:/logs
+      - ./logs/service_b:/logs/service_b
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: users_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - 8080:8080
 
   loki:
     image: grafana/loki:2.9.3
@@ -49,12 +76,14 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./logs/service_a:/logs/service_a:ro
       - ./logs/service_b:/logs/service_b:ro
+      - ./logs/user_service:/logs/user_service:ro
     command: -config.file=/etc/promtail/config.yml
     depends_on:
       - loki
 
   prometheus:
     image: prom/prometheus
+    container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
@@ -69,3 +98,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
       - loki
+      - prometheus
+
+volumes:
+  pgdata:

@@ -3,6 +3,7 @@ from prometheus_flask_exporter import PrometheusMetrics
 from logging.handlers import TimedRotatingFileHandler
 import requests
 import logging
+import datetime
 import sys
 import uuid
 import time
@@ -44,8 +45,10 @@ metrics = PrometheusMetrics(app)
 # )
 
 # logger = logging.getLogger()
+log_filename = f"/logs/service_a/app.log.{datetime.datetime.now().strftime('%Y-%m-%d')}"
 
-handler1 = TimedRotatingFileHandler('/logs/app.log', when='midnight', backupCount=90)
+# handler1 = TimedRotatingFileHandler('/logs/app.log', when='midnight', backupCount=90)
+handler1 = logging.FileHandler(log_filename)
 handler2 = logging.StreamHandler(sys.stdout)
 
 formatter = JsonFormatter()

@@ -1,3 +1,5 @@
 flask 
+bcrypt
 requests 
+psycopg2-binary
 prometheus_flask_exporter

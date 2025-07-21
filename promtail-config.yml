@@ -44,3 +44,21 @@ scrape_configs:
       - labels:
           level: ""
           service: ""
+
+  - job_name: user_service_file
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: user_service
+          __path__: /logs/user_service/app.log*
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+            trace_id: trace_id
+            service: service
+            message: message
+      - labels:
+          level: ""
+          service: ""
