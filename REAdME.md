@@ -32,7 +32,7 @@ docker compose start service_b
 
 
 docker exec -it promtail sh
-ls -l /logs/user_service/
+ls -l /logs/
 ```
 
 
@@ -326,16 +326,30 @@ not sure how to make all that together
 You can simulate a basic e-commerce-like system with the following services:
 
 1. User Service (Flask + PostgreSQL)
-    - Overview: Handle user registration, login, and user info retrieval.    
+    - Overview: 
+      - Handle user registration, login, and user info retrieval.    
     - Responsibilities: 
         - Register new user (store username, email, hashed password, )
     - API Endpoints: 
-        - POST /register Register new user    
-        - POST /login    Authenticate user, return token  
-        - GET /user/<id> Get user info
+        - `POST /register` – Register new user    
+        - `POST /login`    – Authenticate user, return token  
+        - `GET /user/<id>` – Get user info
 2. Product Service (Flask + MongoDB)
-    - Manages product catalog
-    - Stores product data in MongoDB (good use of flexible schema)
+    - Overview: 
+      - Manages product catalog (CRUD operations).
+      - Stores product data in MongoDB for flexible schema (e.g., name, description, price, tags).
+    - Responsibilities: 
+      - List all products
+      - Add new product 
+      - Get product by id
+      - Update product 
+      - Delete product      
+    - API Endpoints: 
+      - `POST /products`        – Add new product  
+      - `GET /products`         – List all products  
+      - `GET /products/<id>`    – Get product details  
+      - `PUT /products/<id>`    – Update product  
+      - `DELETE /products/<id>` – Delete product
 3. Order Service (Flask + PostgreSQL + RabbitMQ)
     - Places orders
     - Publishes order events to RabbitMQ
@@ -373,31 +387,6 @@ docker rm -f grafana
 sudo systemctl stop postgresql
 
 
-# ...existing services...
-  user_service:
-    build: ./user_service
-    environment:
-      - DATABASE_URL=postgresql://user:password@postgres:5432/users_db
-    depends_on:
-      - postgres
-    ports:
-      - "5002:5000"
-
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: users_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-volumes:
-  pgdata:
-
-
 ### To change the indentation (indent level) of the file explorer tree in Visual Studio Code
 - Press Ctrl + Shift + P and type Preferences: Open Settings (JSON).
 - Add or edit the "workbench.tree.indent" line.
@@ -421,3 +410,30 @@ volumes:
 - 
 
 https://vscodethemes.com/
+
+
+
+http://localhost:5000/register
+{
+    "username":"username_1" ,
+    "email":"email_1" ,
+    "password":"password_1" 
+}
+
+http://localhost:5001/products
+{        
+  "name": "name_1",
+  "description": "description_1",
+  "price": 10
+}
+
+
+[2025-07-22 18:22:56,736] DEBUG in __init__: Metrics are disabled when run in the Flask development server with reload enabled. Set the environment variable DEBUG_METRICS=1 to enable them anyway.
+
+
+docker exec -it mongo mongosh -u root -p example --authenticationDatabase admin
+
+docker volume ls
+docker volume rm yourvolume_name
+
+

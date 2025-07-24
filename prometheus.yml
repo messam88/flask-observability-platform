@@ -6,10 +6,14 @@ scrape_configs:
     static_configs:
       - targets: ["user_service:5000"]
 
+  - job_name: "product_service"
+    static_configs:
+      - targets: ["product_service:5001"]
+
   - job_name: "service_a"
     static_configs:
-      - targets: ["service_a:5001"]
+      - targets: ["service_a:5002"]
 
   - job_name: "service_b"
     static_configs:
-      - targets: ["service_b:5002"]
+      - targets: ["service_b:5005"]
